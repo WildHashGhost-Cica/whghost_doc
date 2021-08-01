@@ -6,6 +6,7 @@ import { db } from "../../firebase";
 import { useDocumentOnce } from "react-firebase-hooks/firestore";
 import { getSession, singOut, useSession} from "next-auth/client";
 import Login from '../components/Login';
+import TextEditor from '../components/TextEditor';
 
 
 function Doc() {
@@ -25,6 +26,7 @@ function Doc() {
     }
 
     return (
+      <div>
         <header className="flex jistify-between items-center p-3 pb-1">
           <span onClick={() => router.push("/")} className="cursor-pointer">
           <Icon name="description" size="5xl" color="blue"/>
@@ -57,7 +59,20 @@ function Doc() {
           <img className="cursor-pointer rounded-full h-10 w-10 ml-2" src={session.user.image} alt=""/>
 
         </header>
+
+        <TextEditor/>
+      </div>
     )
 }
 
 export default Doc;
+
+export async function getServerSideProps(context) {
+  const session = await  getSession(context);
+
+  return {
+    props: {
+      session
+    }
+  }
+}
