@@ -128,7 +128,7 @@ export default function Home() {
             <Icon name="folder" size="3xl" color="gray"/>
           </div>
 
-        </div>
+        
         {snapshot?.docs.map(doc => (
           <DocumentRow
           key={doc.id}
@@ -137,6 +137,7 @@ export default function Home() {
           date={doc.data().timestamp}
           />
         ))}
+        </div>
       </section>
     </div>
   );
