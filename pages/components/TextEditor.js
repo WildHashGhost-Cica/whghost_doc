@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import dynamic from "next/dynamic";
 import { useState } from 'react';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { EditorState } from 'draft-js';
+import { useRouter } from 'next/dist/client/router';
+import { convertFromRaw, convertToRaw } from 'draft-js';
+import { signOut, useSession } from "next-auth/client";
+import { db } from "../../firebase";
+import { useDocumentOnce } from 'react-firebase-hooks/firestore';
+
 
 
 
@@ -14,12 +20,35 @@ const Editor =  dynamic(
 )
 
 function TextEditor() {
-
+    const [session] = useSession();
+    
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+
+    const router = useRouter();
+    const { id } = router.query;
+
+    const [snapshot] = useDocumentOnce(
+        db.collection("userDocs").doc(session.user.email).collection("docs").doc(id)
+    );
+
+    useEffect(() => {
+        if (snapshot?.data()?.editorState){
+            setEditorState()
+        }
+    }, [snapshot])
 
     const onEditorStateChange = (editorState) => {
         setEditorState(editorState);
-    }
+
+        db.collection('userDocs').doc(session.user.email).collection
+        ('docs').doc(id).set({
+            editorState: convertToRaw(editorState.getCurrentContent())
+        }, {
+            merge: true
+        })
+    };
+
+    
 
     return (
         <div className="bg-[#f8F9FA] min-h-screen pb-16">
